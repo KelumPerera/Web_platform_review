@@ -1,0 +1,39 @@
+{
+  "todos": [
+    {
+      "content": "Implement social sharing features",
+      "status": "completed",
+      "priority": "medium"
+    },
+    {
+      "content": "Add real-time comment updates",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "Create explore page for public portfolios",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Add portfolio search functionality",
+      "status": "completed",
+      "priority": "medium"
+    },
+    {
+      "content": "Implement social sharing UI",
+      "status": "completed",
+      "priority": "low"
+    },
+    {
+      "content": "Add home page with featured portfolios",
+      "status": "completed",
+      "priority": "medium"
+    },
+    {
+      "content": "Update README with new features",
+      "status": "completed",
+      "priority": "low"
+    }
+  ]
+}
