@@ -1,11 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServerClient } from '@/app/utils/supabase';
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await getSupabaseServerClient();
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -16,14 +13,20 @@ export async function POST(request: Request) {
     }
 
     const fileBuffer = await file.arrayBuffer();
-    const fileExtension = file.name.split('.').pop();
+    const fileExtension = file.name.split('.').pop() || '';
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
     const filePath = `${profileId}/${fileName}`;
+
+    // Explicitly fallback/set contentType for markdown files if parsed as empty or generic octet-stream
+    let contentType = file.type;
+    if (fileExtension.toLowerCase() === 'md') {
+      contentType = 'text/markdown';
+    }
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('portfolio-media')
       .upload(filePath, fileBuffer, {
-        contentType: file.type,
+        contentType: contentType || 'application/octet-stream',
         cacheControl: '3600',
         upsert: false,
       });
