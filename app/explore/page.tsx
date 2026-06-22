@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServerClient } from '@/app/utils/supabase';
 import Link from 'next/link';
 import SocialShare from '@/app/components/SocialShare';
 
@@ -9,10 +9,7 @@ export default async function ExplorePage({
 }: {
   searchParams?: Promise<{ query?: string; tab?: string }>;
 }) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = await getSupabaseServerClient();
 
   const resolvedParams = await searchParams;
   const query = resolvedParams?.query || '';
