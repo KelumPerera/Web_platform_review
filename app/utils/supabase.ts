@@ -3,7 +3,8 @@ import { cookies } from 'next/headers';
 
 export async function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Use Anon key for user authentication / client sessions, fall back to service role key if not present
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
     // Return a dummy client during static generation/prerendering to prevent build failures
