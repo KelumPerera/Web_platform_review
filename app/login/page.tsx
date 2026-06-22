@@ -1,7 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { getSessionUser } from '@/app/utils/supabase';
+import { getSessionUser, getSupabaseServerClient } from '@/app/utils/supabase';
 
 export default async function LoginPage({
   searchParams,
@@ -22,10 +21,7 @@ export default async function LoginPage({
     const password = formData.get('password') as string;
     const callbackUrl = formData.get('callbackUrl') as string;
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await getSupabaseServerClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -33,7 +29,8 @@ export default async function LoginPage({
     });
 
     if (error || !data.session) {
-      return redirect('/login?message=Invalid credentials');
+      const errorMsg = error ? encodeURIComponent(error.message) : 'Invalid credentials';
+      return redirect(`/login?message=${errorMsg}`);
     }
 
     const cookieStore = await cookies();
