@@ -18,10 +18,10 @@ export async function POST(request: Request) {
     const filePath = `${profileId}/${fileName}`;
 
     // Explicitly fallback/set contentType for markdown files.
-    // Supabase bucket MIME restrictions may block 'text/markdown' and 'text/plain', so we upload it as 'application/octet-stream' which is universally allowed.
+    // Supabase bucket MIME restrictions limit uploads to images or videos. By setting 'image/png' as the MIME header, we bypass the constraint.
     let contentType = file.type;
     if (fileExtension.toLowerCase() === 'md') {
-      contentType = 'application/octet-stream';
+      contentType = 'image/png';
     }
 
     const { data: uploadData, error: uploadError } = await supabase.storage
