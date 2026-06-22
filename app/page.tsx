@@ -3,12 +3,11 @@ import Link from 'next/link';
 
 export const revalidate = 60;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export default async function HomePage() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
   const { data: profiles, error } = await supabase
     .from('profiles')
     .select('*')

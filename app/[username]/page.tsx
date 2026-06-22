@@ -3,18 +3,15 @@ import { notFound } from 'next/navigation';
 import PortfolioClient from './portfolio-client';
 import SocialShare from '@/app/components/SocialShare';
 
-export const revalidate = 60;
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 interface PageProps {
   params: Promise<{ username: string }>;
 }
 
 export default async function PortfolioPage({ params }: PageProps) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
   const { username } = await params;
 
   const { data: profile, error: profileErr } = await supabase
