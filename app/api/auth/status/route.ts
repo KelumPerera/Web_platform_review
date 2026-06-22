@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServerClient } from '@/app/utils/supabase';
 
 export async function GET() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-  );
+  const supabase = await getSupabaseServerClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {

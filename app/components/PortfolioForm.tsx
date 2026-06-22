@@ -106,6 +106,15 @@ export default function PortfolioForm({ onSubmit, initialData, disabled = false 
     uploaderFormData.append('file', file);
     
     try {
+      // Fetch authenticated user ID to upload to the correct Supabase user storage bucket folder
+      const statusRes = await fetch('/api/auth/status');
+      const statusData = await statusRes.json();
+      if (statusData.authenticated && statusData.user?.id) {
+        uploaderFormData.append('profileId', statusData.user.id);
+      } else {
+        uploaderFormData.append('profileId', 'anonymous');
+      }
+
       const res = await fetch('/api/upload/media', {
         method: 'POST',
         body: uploaderFormData,
@@ -139,6 +148,15 @@ export default function PortfolioForm({ onSubmit, initialData, disabled = false 
     uploaderFormData.append('file', file);
     
     try {
+      // Fetch authenticated user ID to upload to the correct Supabase user storage bucket folder
+      const statusRes = await fetch('/api/auth/status');
+      const statusData = await statusRes.json();
+      if (statusData.authenticated && statusData.user?.id) {
+        uploaderFormData.append('profileId', statusData.user.id);
+      } else {
+        uploaderFormData.append('profileId', 'anonymous');
+      }
+
       const res = await fetch('/api/upload/media', {
         method: 'POST',
         body: uploaderFormData,
