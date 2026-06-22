@@ -26,16 +26,15 @@ interface FormData {
   title: string;
   description: string;
   mediaType: 'image' | 'video';
-  file?: File;
   isProduct: boolean;
   demoUrl?: string;
   githubUrl?: string;
-  testScenarioFile?: File;
   testScenarioUrl?: string;
   category?: string;
   tags?: string;
   pledgeAmount?: number;
   processorType?: 'stripe' | 'paypal';
+  mediaUrl?: string;
 }
 
 export default function PortfolioForm({ onSubmit, initialData, disabled = false }: PortfolioFormProps) {
@@ -87,14 +86,30 @@ export default function PortfolioForm({ onSubmit, initialData, disabled = false 
     }
 
     if (currentMediaUrl) {
-      formData.file = new File([], currentMediaUrl.split('/').pop() || 'media', { type: mediaType === 'image' ? 'image/jpeg' : 'video/mp4' });
+      formData.mediaUrl = currentMediaUrl;
     }
 
-    if (testScenarioFile) {
-      formData.testScenarioFile = testScenarioFile;
+    if (testScenarioUrl) {
+      formData.testScenarioUrl = testScenarioUrl;
     }
 
-    onSubmit(formData);
+    // Pass plain data to onSubmit action
+    const plainData = {
+      title: formData.title,
+      description: formData.description,
+      mediaType: formData.mediaType,
+      isProduct: formData.isProduct,
+      demoUrl: formData.demoUrl,
+      githubUrl: formData.githubUrl,
+      testScenarioUrl: formData.testScenarioUrl,
+      category: formData.category,
+      tags: formData.tags,
+      pledgeAmount: formData.pledgeAmount,
+      processorType: formData.processorType,
+      mediaUrl: currentMediaUrl
+    };
+
+    onSubmit(plainData as any);
   };
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

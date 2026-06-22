@@ -6,7 +6,6 @@ async function createItem(data: {
   title: string;
   description: string;
   mediaType: 'image' | 'video';
-  file?: File;
   isProduct: boolean;
   demoUrl?: string;
   githubUrl?: string;
@@ -15,6 +14,7 @@ async function createItem(data: {
   tags?: string;
   pledgeAmount?: number;
   processorType?: 'stripe' | 'paypal';
+  mediaUrl?: string;
 }) {
   'use server';
   
@@ -23,39 +23,14 @@ async function createItem(data: {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
+    console.error("Auth redirect triggered in createItem. Error:", authError?.message, "User status:", !!user);
     redirect('/login');
   }
 
-  const { title, description, mediaType, file, isProduct, demoUrl, githubUrl, testScenarioUrl, category, tags } = data;
+  const { title, description, mediaType, isProduct, demoUrl, githubUrl, testScenarioUrl, category, tags, mediaUrl } = data;
 
   if (!title || !mediaType) {
     return { error: 'Missing required fields' };
-  }
-
-  let mediaUrl = '';
-  if (file && file.size > 0) {
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const filePath = `${user.id}/${fileName}`;
-
-    const fileBuffer = await file.arrayBuffer();
-
-    const { error: uploadError } = await supabase.storage
-      .from('portfolio-media')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-        cacheControl: '3600',
-      });
-
-    if (uploadError) {
-      return { error: uploadError.message };
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('portfolio-media')
-      .getPublicUrl(filePath);
-
-    mediaUrl = publicUrl;
   }
 
   const { data: itemData, error } = await supabase

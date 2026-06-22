@@ -6,7 +6,6 @@ async function updateItem(id: string, data: {
   title: string;
   description: string;
   mediaType: 'image' | 'video';
-  file?: File;
   isProduct: boolean;
   demoUrl?: string;
   githubUrl?: string;
@@ -15,6 +14,7 @@ async function updateItem(id: string, data: {
   tags?: string;
   pledgeAmount?: number;
   processorType?: 'stripe' | 'paypal';
+  mediaUrl?: string;
 }) {
   'use server';
   
@@ -26,7 +26,7 @@ async function updateItem(id: string, data: {
     redirect('/login');
   }
 
-  const { title, description, mediaType, file, isProduct, demoUrl, githubUrl, testScenarioUrl, category, tags } = data;
+  const { title, description, mediaType, isProduct, demoUrl, githubUrl, testScenarioUrl, category, tags, mediaUrl } = data;
 
   if (!id || !title) {
     return { error: 'Missing required fields' };
@@ -41,42 +41,6 @@ async function updateItem(id: string, data: {
 
   if (!item || item.profile_id !== user.id) {
     redirect('/dashboard/items');
-  }
-
-  let mediaUrl = item.media_url;
-  if (file && file.size > 0) {
-    // Delete old file
-    if (item.media_url) {
-      const fileName = item.media_url.split('/').pop();
-      if (fileName) {
-        const filePath = `${user.id}/${fileName}`;
-        await supabase.storage.from('portfolio-media').remove([filePath]);
-      }
-    }
-
-    // Upload new file
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const filePath = `${user.id}/${fileName}`;
-
-    const fileBuffer = await file.arrayBuffer();
-
-    const { error: uploadError } = await supabase.storage
-      .from('portfolio-media')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-        cacheControl: '3600',
-      });
-
-    if (uploadError) {
-      return { error: uploadError.message };
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('portfolio-media')
-      .getPublicUrl(filePath);
-
-    mediaUrl = publicUrl;
   }
 
   const { error } = await supabase

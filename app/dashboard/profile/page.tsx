@@ -1,14 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import MediaUploader from '@/app/components/MediaUploader';
+import { getSupabaseServerClient } from '@/app/utils/supabase';
 
 async function updateProfile(formData: FormData) {
   'use server';
   
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = await getSupabaseServerClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -78,8 +75,6 @@ async function updateProfile(formData: FormData) {
 
   redirect('/dashboard/profile');
 }
-
-import { getSupabaseServerClient } from '@/app/utils/supabase';
 
 export default async function ProfilePage() {
   const supabase = await getSupabaseServerClient();
