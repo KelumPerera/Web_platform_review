@@ -2,20 +2,32 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function getSupabaseServerClient() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('sb-access-token')?.value;
-  const refreshToken = cookieStore.get('sb-refresh-token')?.value;
+  if (!url || !key) {
+    // Return a dummy client during static generation/prerendering to prevent build failures
+    return createClient(
+      url || 'https://placeholder-url.supabase.co',
+      key || 'placeholder-key'
+    );
+  }
 
-  if (accessToken) {
-    await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken || '',
-    });
+  const supabase = createClient(url, key);
+
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('sb-access-token')?.value;
+    const refreshToken = cookieStore.get('sb-refresh-token')?.value;
+
+    if (accessToken) {
+      await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+      });
+    }
+  } catch (e) {
+    // cookies() might throw an error if called in static rendering contexts where it's not supported
   }
 
   return supabase;
